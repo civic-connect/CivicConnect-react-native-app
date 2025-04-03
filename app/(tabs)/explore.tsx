@@ -42,7 +42,7 @@ export default function ExploreScreen() {
 
     try {
       const response = await axios.post(
-        'http://192.168.0.109:5000/chat',
+        'http://192.168.56.1:5001/chat',
         { query: inputText },
         { withCredentials: true }
       );

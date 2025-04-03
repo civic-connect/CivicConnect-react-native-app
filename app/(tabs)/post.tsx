@@ -22,7 +22,8 @@ import { Video, ResizeMode } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { ScrollView} from 'react-native';
+import { ScrollView } from 'react-native';
+import Swiper from 'react-native-swiper';
 
 // Enable LayoutAnimation for Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -37,7 +38,7 @@ type Post = {
   title: string;
   content: string;
   category: string;
-  post_type: 'government' | 'community' | 'News' | 'LocalIssue';
+  post_type: 'Government' | 'Community' | 'News' | 'LocalIssue';
   location: string;
   created_at: string;
   media: Media[];
@@ -61,7 +62,7 @@ const PostScreen = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'all' | 'community' | 'government'>('all');
+  const [activeTab, setActiveTab] = useState<'All' | 'Government' | 'Community' | 'News' | 'LocalIssue'>('All');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [sessionError, setSessionError] = useState(false);
@@ -102,238 +103,10 @@ const PostScreen = () => {
   const fetchPosts = async (pageNum = 1, refresh = false) => {
     if (sessionError) return;
 
-    // For demo purposes - return hardcoded data
-    if (process.env.NODE_ENV === 'development') {
-      const demoPosts: Post[] = [
-        {
-          post_id: 1,
-          user_id: 'gov_user_1',
-          title: 'New Community Park Opening',
-          content: 'The new Riverside Community Park will open this Saturday with special activities for all ages!',
-          category: 'Announcement',
-          post_type: 'government',
-          location: 'Downtown District',
-          created_at: new Date().toISOString(),
-          media: [{
-            media_id: 1,
-            media_type: 'image',
-            media_url: 'https://images.unsplash.com/photo-1571624436279-b272aff752b5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80'
-          }],
-          like_count: '24',
-          comment_count: '8',
-          bookmark_count: '5',
-          liked: false,
-          bookmarked: false,
-          distance_km: 1.2
-        },
-        {
-          post_id: 2,
-          user_id: 'community_user_1',
-          title: 'Road Construction Update',
-          content: 'Main Street will be closed for repairs from June 10-15. Detours will be in place.',
-          category: 'Infrastructure',
-          post_type: 'News',
-          location: 'Main Street',
-          created_at: new Date(Date.now() - 86400000).toISOString(),
-          media: [{
-            media_id: 2,
-            media_type: 'image',
-            media_url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'
-          }],
-          like_count: '42',
-          comment_count: '15',
-          bookmark_count: '7',
-          liked: true,
-          bookmarked: false,
-          distance_km: 0.5
-        },
-        {
-          post_id: 3,
-          user_id: 'gov_user_2',
-          title: 'Summer Youth Program Registration',
-          content: 'Registration for our summer youth programs is now open! Limited spots available.',
-          category: 'Education',
-          post_type: 'government',
-          location: 'Community Center',
-          created_at: new Date(Date.now() - 172800000).toISOString(),
-          media: [{
-            media_id: 3,
-            media_type: 'video',
-            media_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4'
-          }],
-          like_count: '36',
-          comment_count: '12',
-          bookmark_count: '9',
-          liked: false,
-          bookmarked: true,
-          distance_km: 2.1
-        },
-        {
-          post_id: 4,
-          user_id: 'community_user_2',
-          title: 'Neighborhood Cleanup Day',
-          content: 'Join us this Sunday for our monthly neighborhood cleanup. Gloves and bags provided!',
-          category: 'Community',
-          post_type: 'community',
-          location: 'Maplewood Area',
-          created_at: new Date(Date.now() - 259200000).toISOString(),
-          media: [{
-            media_id: 4,
-            media_type: 'image',
-            media_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'
-          }],
-          like_count: '58',
-          comment_count: '23',
-          bookmark_count: '14',
-          liked: false,
-          bookmarked: false,
-          distance_km: 1.8
-        },
-        {
-          post_id: 5,
-          user_id: 'gov_user_3',
-          title: 'Public Budget Meeting',
-          content: 'Join us for the annual budget discussion meeting next Thursday at City Hall.',
-          category: 'Finance',
-          post_type: 'government',
-          location: 'City Hall',
-          created_at: new Date(Date.now() - 345600000).toISOString(),
-          media: [{
-            media_id: 5,
-            media_type: 'image',
-            media_url: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1473&q=80'
-          }],
-          like_count: '31',
-          comment_count: '7',
-          bookmark_count: '4',
-          liked: true,
-          bookmarked: true,
-          distance_km: 3.4
-        },
-        {
-          post_id: 6,
-          user_id: 'community_user_3',
-          title: 'Local Farmers Market Returns',
-          content: 'Starting this weekend, the downtown farmers market will be open every Saturday morning.',
-          category: 'Event',
-          post_type: 'community',
-          location: 'Downtown Square',
-          created_at: new Date(Date.now() - 432000000).toISOString(),
-          media: [{
-            media_id: 6,
-            media_type: 'video',
-            media_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
-          }],
-          like_count: '87',
-          comment_count: '32',
-          bookmark_count: '19',
-          liked: false,
-          bookmarked: false,
-          distance_km: 0.8
-        },
-        {
-          post_id: 7,
-          user_id: 'gov_user_4',
-          title: 'New Recycling Program',
-          content: 'Starting next month, we\'re expanding our recycling program to include more materials.',
-          category: 'Environment',
-          post_type: 'government',
-          location: 'Citywide',
-          created_at: new Date(Date.now() - 518400000).toISOString(),
-          media: [{
-            media_id: 7,
-            media_type: 'image',
-            media_url: 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'
-          }],
-          like_count: '45',
-          comment_count: '18',
-          bookmark_count: '11',
-          liked: false,
-          bookmarked: false,
-          distance_km: null
-        },
-        {
-          post_id: 8,
-          user_id: 'community_user_4',
-          title: 'Library Renovation Complete',
-          content: 'The central library renovation is complete! Come see the new facilities and expanded children\'s section.',
-          category: 'Infrastructure',
-          post_type: 'News',
-          location: 'Central Library',
-          created_at: new Date(Date.now() - 604800000).toISOString(),
-          media: [{
-            media_id: 8,
-            media_type: 'image',
-            media_url: 'https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1476&q=80'
-          }],
-          like_count: '62',
-          comment_count: '27',
-          bookmark_count: '13',
-          liked: true,
-          bookmarked: false,
-          distance_km: 1.5
-        },
-        {
-          post_id: 9,
-          user_id: 'gov_user_5',
-          title: 'Emergency Preparedness Workshop',
-          content: 'Learn essential emergency preparedness skills at our free workshop next Wednesday.',
-          category: 'Safety',
-          post_type: 'government',
-          location: 'Community Center',
-          created_at: new Date(Date.now() - 691200000).toISOString(),
-          media: [{
-            media_id: 9,
-            media_type: 'video',
-            media_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
-          }],
-          like_count: '29',
-          comment_count: '5',
-          bookmark_count: '8',
-          liked: false,
-          bookmarked: true,
-          distance_km: 2.3
-        },
-        {
-          post_id: 10,
-          user_id: 'community_user_5',
-          title: 'Annual Food Drive',
-          content: 'Our annual food drive begins next week. Drop-off locations throughout the city.',
-          category: 'Community',
-          post_type: 'community',
-          location: 'Various Locations',
-          created_at: new Date(Date.now() - 777600000).toISOString(),
-          media: [{
-            media_id: 10,
-            media_type: 'image',
-            media_url: 'https://images.unsplash.com/photo-1507048331197-7d4ac70811cf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80'
-          }],
-          like_count: '73',
-          comment_count: '21',
-          bookmark_count: '16',
-          liked: true,
-          bookmarked: false,
-          distance_km: null
-        }
-      ];
-
-      if (refresh) {
-        setPosts(demoPosts);
-      } else {
-        setPosts(prev => [...prev, ...demoPosts]);
-      }
-
-      setHasMore(false);
-      setLoading(false);
-      setRefreshing(false);
-      return;
-    }
-
-    // Original API call for production
     try {
       if (pageNum === 1) setLoading(true);
       
-      const response = await axios.get('http://192.168.56.1:5000/posts', {
+      const response = await axios.get('http://192.168.56.1:5002/posts', {
         params: { limit: 10, offset: (pageNum - 1) * 10 },
         withCredentials: true
       });
@@ -388,8 +161,8 @@ const PostScreen = () => {
   }, [page]);
 
   const filteredPosts = posts.filter(post => {
-    if (activeTab === 'all') return true;
-    return post.post_type.toLowerCase() === activeTab;
+    if (activeTab === 'All') return true;
+    return post.post_type === activeTab;
   });
 
   const toggleExpand = (postId: number) => {
@@ -404,7 +177,7 @@ const PostScreen = () => {
   const handleLike = async (postId: number) => {
     try {
       await axios.post(
-        'http://192.168.56.1:5000/like',
+        'http://192.168.56.1:5002/like',
         { post_id: postId },
         { withCredentials: true }
       );
@@ -434,7 +207,7 @@ const PostScreen = () => {
   const handleBookmark = async (postId: number) => {
     try {
       await axios.post(
-        'http://192.168.56.1:5000/bookmark',
+        'http://192.168.56.1:5002/bookmark',
         { post_id: postId },
         { withCredentials: true }
       );
@@ -462,14 +235,25 @@ const PostScreen = () => {
   };
 
   const renderPostTypeTag = (type: string) => {
-    const typeLower = type.toLowerCase();
-    const bgColor = typeLower === 'government' || typeLower === 'news' ? '#1E90FF' : '#34a853';
-    const icon = typeLower === 'government' || typeLower === 'news' ? 'account-balance' : 'people';
-    const displayText = typeLower === 'localissue' ? 'Local Issue' : type;
+    const typeColors = {
+      Government: '#1E90FF',
+      Community: '#34a853',
+      News: '#FF6B6B',
+      LocalIssue: '#FFA500'
+    };
+    
+    const typeIcons = {
+      Government: 'account-balance',
+      Community: 'people',
+      News: 'newspaper',
+      LocalIssue: 'warning'
+    };
+    
+    const displayText = type === 'LocalIssue' ? 'Local Issue' : type;
     
     return (
-      <View style={[styles.typeTag, { backgroundColor: bgColor }]}>
-        <MaterialIcons name={icon} size={14} color="white" />
+      <View style={[styles.typeTag, { backgroundColor: typeColors[type as keyof typeof typeColors] }]}>
+        <MaterialIcons name={typeIcons[type as keyof typeof typeIcons]} size={14} color="white" />
         <Text style={styles.typeTagText}>
           {displayText}
         </Text>
@@ -504,13 +288,28 @@ const PostScreen = () => {
   const renderMedia = (media: Media[], postId: number) => {
     if (media.length === 0) return null;
     
+    if (media.length === 1) {
+      return (
+        <View style={styles.mediaContainer}>
+          {renderMediaItem(media[0], postId)}
+        </View>
+      );
+    }
+
     return (
       <View style={styles.mediaContainer}>
-        {media.map((item, index) => (
-          <View key={index} style={styles.mediaWrapper}>
-            {renderMediaItem(item, postId)}
-          </View>
-        ))}
+        <Swiper
+          showsPagination={true}
+          dotColor="rgba(255,255,255,0.4)"
+          activeDotColor="#1E90FF"
+          paginationStyle={styles.swiperPagination}
+        >
+          {media.map((item, index) => (
+            <View key={index} style={styles.mediaWrapper}>
+              {renderMediaItem(item, postId)}
+            </View>
+          ))}
+        </Swiper>
       </View>
     );
   };
@@ -560,12 +359,16 @@ const PostScreen = () => {
             <MaterialIcons 
               name="account-circle" 
               size={36} 
-              color={item.post_type === 'government' ? '#1E90FF' : '#34a853'} 
+              color={item.post_type === 'Government' ? '#1E90FF' : 
+                    item.post_type === 'Community' ? '#34a853' :
+                    item.post_type === 'News' ? '#FF6B6B' : '#FFA500'} 
             />
           </View>
           <View style={styles.userMeta}>
             <Text style={styles.username}>
-              {item.post_type === 'government' ? 'Government' : 'Community User'}
+              {item.post_type === 'Government' ? 'Government' : 
+               item.post_type === 'Community' ? 'Community User' :
+               item.post_type === 'News' ? 'News' : 'Local Issue'}
             </Text>
             {renderLocation(item)}
           </View>
@@ -655,9 +458,11 @@ const PostScreen = () => {
 
   const renderTabs = () => {
     const tabs = [
-      { id: 'all', label: 'All Posts' },
-      { id: 'community', label: 'Community' },
-      { id: 'government', label: 'Government' }
+      { id: 'All', label: 'All Posts' },
+      { id: 'Government', label: 'Government' },
+      { id: 'Community', label: 'Community' },
+      { id: 'News', label: 'News' },
+      { id: 'LocalIssue', label: 'Local Issues' }
     ];
     
     return (
@@ -884,6 +689,9 @@ const styles = StyleSheet.create({
   media: {
     width: '100%',
     height: '100%',
+  },
+  swiperPagination: {
+    bottom: 10,
   },
   postFooter: {
     flexDirection: 'row',

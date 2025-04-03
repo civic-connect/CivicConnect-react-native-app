@@ -14,6 +14,7 @@ import { Raleway_400Regular, Raleway_600SemiBold, Raleway_700Bold } from '@expo-
 import { useFonts } from 'expo-font';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { useTheme } from './ThemeContext';
+import { useRouter } from 'expo-router'; // Import the router
 
 const { width } = Dimensions.get('window');
 
@@ -28,6 +29,7 @@ const CivicConnectApp = () => {
     Raleway_700Bold,
   });
 
+  const router = useRouter();
   if (!fontsLoaded) {
     return null;
   }
@@ -39,7 +41,7 @@ const CivicConnectApp = () => {
       icon: 'account-circle',
       color: colors.primary,
       iconLib: MaterialIcons,
-      gradient: [colors.primary, colors.secondary]
+      path: '/login' // Using path instead of route
     },
     {
       id: 2,
@@ -47,7 +49,7 @@ const CivicConnectApp = () => {
       icon: 'robot',
       color: colors.success,
       iconLib: MaterialCommunityIcons,
-      gradient: [colors.success, '#3a86ff']
+      path: '/explore'
     },
     {
       id: 3,
@@ -55,7 +57,7 @@ const CivicConnectApp = () => {
       icon: 'headset',
       color: colors.accent,
       iconLib: MaterialIcons,
-      gradient: [colors.accent, '#f72585']
+      path: '/assistant'
     },
     {
       id: 4,
@@ -63,10 +65,12 @@ const CivicConnectApp = () => {
       icon: 'newspaper',
       color: colors.error,
       iconLib: MaterialCommunityIcons,
-      gradient: [colors.error, '#ef233c']
+      path: '/post'
     },
   ];
-
+  const handleServicePress = (path) => {
+    router.replace(path);
+  };
   const featuredArticles = [
     {
       id: 1,
@@ -145,42 +149,42 @@ const CivicConnectApp = () => {
           </View>
         </View>
 
-        {/* Quick Actions */}
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Services</Text>
-          <TouchableOpacity>
-            <Text style={[styles.seeAll, { color: colors.primary }]}>See All</Text>
+      {/* Quick Actions */}
+      <View style={styles.sectionHeader}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Services</Text>
+        <TouchableOpacity>
+          <Text style={[styles.seeAll, { color: colors.primary }]}>See All</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.servicesGrid}>
+        {services.map(service => (
+          <TouchableOpacity 
+            key={service.id}
+            style={[
+              styles.serviceCard, 
+              { 
+                backgroundColor: colors.card,
+                shadowColor: colors.text,
+                elevation: 2
+              }
+            ]}
+            activeOpacity={0.8}
+            onPress={() => handleServicePress(service.path)} // Updated to use path
+          >
+            <View style={[
+              styles.serviceIcon, 
+              { 
+                backgroundColor: service.color,
+                shadowColor: service.color,
+                elevation: 4
+              }
+            ]}>
+              {renderIcon(service.iconLib, service.icon, 24, '#fff')}
+            </View>
+            <Text style={[styles.serviceTitle, { color: colors.text }]}>{service.title}</Text>
           </TouchableOpacity>
-        </View>
-        <View style={styles.servicesGrid}>
-          {services.map(service => (
-            <TouchableOpacity 
-              key={service.id}
-              style={[
-                styles.serviceCard, 
-                { 
-                  backgroundColor: colors.card,
-                  shadowColor: colors.text,
-                  elevation: 2
-                }
-              ]}
-              activeOpacity={0.8}
-            >
-              <View style={[
-                styles.serviceIcon, 
-                { 
-                  backgroundColor: service.color,
-                  shadowColor: service.color,
-                  elevation: 4
-                }
-              ]}>
-                {renderIcon(service.iconLib, service.icon, 24, '#fff')}
-              </View>
-              <Text style={[styles.serviceTitle, { color: colors.text }]}>{service.title}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
+        ))}
+      </View>
         {/* Featured Articles */}
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Latest Updates</Text>
