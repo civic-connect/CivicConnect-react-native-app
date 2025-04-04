@@ -60,13 +60,29 @@ const CivicConnectApp = () => {
       path: '/assistant'
     },
     {
-      id: 4,
-      title: 'Govt. News',
-      icon: 'newspaper',
-      color: colors.error,
-      iconLib: MaterialCommunityIcons,
-      path: '/post'
-    },
+    id: 4,
+    title: 'Govt. Updates',
+    icon: 'newspaper',
+    color: colors.error,
+    iconLib: MaterialCommunityIcons,
+    path: '/post'
+  },
+  {
+    id: 5,
+    title: 'Govt. Insights',
+    icon: 'chart-bar',
+    color: colors.primary,
+    iconLib: FontAwesome5,
+    path: '/article'
+  },
+  {
+    id: 6,
+    title: 'Converse',
+    icon: 'forum',
+    color: colors.accent,
+    iconLib: MaterialIcons,
+    path: '/converse'
+  }
   ];
   const handleServicePress = (path) => {
     router.replace(path);

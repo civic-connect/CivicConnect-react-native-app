@@ -24,6 +24,7 @@ import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { ScrollView } from 'react-native';
 import Swiper from 'react-native-swiper';
+import { FloatingAction } from "react-native-floating-action";
 
 // Enable LayoutAnimation for Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -492,6 +493,15 @@ const PostScreen = () => {
     );
   };
 
+  const actions = [
+    {
+      text: "Create Post",
+      icon: <MaterialIcons name="post-add" size={24} color="white" />,
+      name: "create_post",
+      position: 1
+    }
+  ];
+
   if (sessionError) {
     return (
       <View style={styles.loadingContainer}>
@@ -543,6 +553,15 @@ const PostScreen = () => {
           ) : null
         }
         contentContainerStyle={styles.listContent}
+      />
+      <FloatingAction
+        actions={actions}
+        onPressItem={name => {
+          if (name === 'create_post') {
+            router.push('/create-post');
+          }
+        }}
+        color="#1E90FF"
       />
     </View>
   );
